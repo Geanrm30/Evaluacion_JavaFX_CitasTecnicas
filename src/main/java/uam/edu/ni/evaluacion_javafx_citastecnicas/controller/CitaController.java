@@ -26,7 +26,7 @@ public class CitaController {
     @FXML private TextField txtHora;
     @FXML private TextField txtTipoServicio;
     @FXML private ComboBox<String> cmbEstado;
-    @FXML private TextArea txtDescripcion;
+    @FXML private TextField txtDescripcion;
 
     @FXML private Button btnGuardar;
     @FXML private Button btnActualizar;

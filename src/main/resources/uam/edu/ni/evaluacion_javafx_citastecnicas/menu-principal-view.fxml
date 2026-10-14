@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="raiz"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="uam.edu.ni.evaluacion_javafx_citastecnicas.controller.MenuPrincipalController">
+    <left>
+        <VBox style="-fx-background-color: #1e293b;" prefWidth="210.0">
+
+            <!-- Branding -->
+            <VBox style="-fx-background-color: #0f172a;" spacing="4.0">
+                <padding>
+                    <Insets top="24.0" right="16.0" bottom="20.0" left="16.0"/>
+                </padding>
+                <Label text="TecnoAsistencia"
+                       style="-fx-text-fill: #f8fafc; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <Label text="Nicaragua"
+                       style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
+            </VBox>
+
+            <!-- Navegación -->
+            <VBox spacing="4.0">
+                <padding>
+                    <Insets top="20.0" right="8.0" bottom="8.0" left="8.0"/>
+                </padding>
+                <Label text="MÓDULOS"
+                       style="-fx-text-fill: #475569; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 0 0 4 8;"/>
+                <Button text="Clientes" onAction="#mostrarClientes" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: #cbd5e1; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 10 12 10 12; -fx-background-radius: 6;"/>
+                <Button text="Citas técnicas" onAction="#mostrarCitas" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: #cbd5e1; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 10 12 10 12; -fx-background-radius: 6;"/>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- Footer -->
+            <VBox spacing="6.0">
+                <padding>
+                    <Insets top="8.0" right="16.0" bottom="16.0" left="16.0"/>
+                </padding>
+                <Separator style="-fx-background-color: #334155; -fx-border-color: #334155;"/>
+                <Label text="v1.0.0  ·  2025"
+                       style="-fx-text-fill: #475569; -fx-font-size: 11px;"/>
+            </VBox>
+
+        </VBox>
+    </left>
+</BorderPane>

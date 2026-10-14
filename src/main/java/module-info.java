@@ -16,4 +16,5 @@ module uam.edu.ni.evaluacion_javafx_citastecnicas {
     exports uam.edu.ni.evaluacion_javafx_citastecnicas.dao;
     exports uam.edu.ni.evaluacion_javafx_citastecnicas.controller;
     exports uam.edu.ni.evaluacion_javafx_citastecnicas.validation;
+    exports uam.edu.ni.evaluacion_javafx_citastecnicas.Interfaces;
 }

@@ -1,5 +1,6 @@
 package uam.edu.ni.evaluacion_javafx_citastecnicas.dao;
 
+import uam.edu.ni.evaluacion_javafx_citastecnicas.Interfaces.CRUD;
 import uam.edu.ni.evaluacion_javafx_citastecnicas.model.CitaTecnica;
 import uam.edu.ni.evaluacion_javafx_citastecnicas.model.Cliente;
 import uam.edu.ni.evaluacion_javafx_citastecnicas.util.ConexionDB;
@@ -9,7 +10,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,10 +20,10 @@ public class CitaTecnicaDao implements CRUD<CitaTecnica> {
     @Override
     public void guardar(CitaTecnica cita) throws SQLException {
         String sql = "INSERT INTO cita_tecnica (cliente_id, fecha, hora, tipo_servicio, descripcion, estado) "
-                   + "VALUES (?, ?, ?, ?, ?, ?)";
+                   + "VALUES (?, ?, ?, ?, ?, ?) RETURNING id";
 
         try (Connection con = ConexionDB.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, cita.getCliente().getId());
             ps.setDate(2, Date.valueOf(cita.getFecha()));
@@ -32,9 +32,7 @@ public class CitaTecnicaDao implements CRUD<CitaTecnica> {
             ps.setString(5, cita.getDescripcion());
             ps.setString(6, cita.getEstado());
 
-            ps.executeUpdate();
-
-            try (ResultSet rs = ps.getGeneratedKeys()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     cita.setId(rs.getInt(1));
                 }
@@ -58,11 +56,20 @@ public class CitaTecnicaDao implements CRUD<CitaTecnica> {
             ps.setString(6, cita.getEstado());
             ps.setInt(7, cita.getId());
 
-            ps.executeUpdate();
+            int filas = ps.executeUpdate();
+            if (filas == 0) {
+                throw new SQLException("No se pudo actualizar la cita: no existe.");
+            }
         }
     }
 
     @Override
+    public void eliminar(CitaTecnica cita) throws SQLException {
+        if (cita != null && cita.getId() != null) {
+            eliminar(cita.getId());
+        }
+    }
+
     public void eliminar(int id) throws SQLException {
         String sql = "DELETE FROM cita_tecnica WHERE id = ?";
 
@@ -70,7 +77,10 @@ public class CitaTecnicaDao implements CRUD<CitaTecnica> {
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
-            ps.executeUpdate();
+            int filas = ps.executeUpdate();
+            if (filas == 0) {
+                throw new SQLException("No se pudo eliminar la cita: no existe.");
+            }
         }
     }
 
@@ -89,6 +99,36 @@ public class CitaTecnicaDao implements CRUD<CitaTecnica> {
 
             while (rs.next()) {
                 lista.add(mapearCita(rs));
+            }
+        }
+        return lista;
+    }
+
+    @Override
+    public List<CitaTecnica> buscar(String termino) throws SQLException {
+        List<CitaTecnica> lista = new ArrayList<>();
+        String sql = "SELECT ct.id, ct.cliente_id, ct.fecha, ct.hora, ct.tipo_servicio, ct.descripcion, ct.estado, "
+                   + "       c.nombres, c.apellidos, c.telefono, c.correo, c.activo "
+                   + "FROM cita_tecnica ct "
+                   + "LEFT JOIN cliente c ON ct.cliente_id = c.id "
+                   + "WHERE CAST(ct.id AS TEXT) ILIKE ? OR c.nombres ILIKE ? OR c.apellidos ILIKE ? "
+                   + "   OR ct.tipo_servicio ILIKE ? OR ct.estado ILIKE ? OR ct.descripcion ILIKE ? "
+                   + "ORDER BY ct.fecha DESC, ct.hora DESC";
+
+        String patron = "%" + termino.trim()
+                .replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
+
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            for (int i = 1; i <= 6; i++) {
+                ps.setString(i, patron);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearCita(rs));
+                }
             }
         }
         return lista;
