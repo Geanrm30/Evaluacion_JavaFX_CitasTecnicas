@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="12.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="uam.edu.ni.evaluacion_javafx_citastecnicas.ClientesController">
+    <padding>
+        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0"/>
+    </padding>
+    <Label text="Gestión de clientes" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+    <GridPane hgap="10.0" vgap="8.0">
+        <Label text="Nombres" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <TextField fx:id="nombresField" promptText="Nombres" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <Label text="Apellidos" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+        <TextField fx:id="apellidosField" promptText="Apellidos" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+        <Label text="Teléfono" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <TextField fx:id="telefonoField" promptText="Teléfono" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <Label text="Correo" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+        <TextField fx:id="correoField" promptText="correo@ejemplo.com" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+        <CheckBox fx:id="activoCheckBox" text="Activo" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+    </GridPane>
+    <HBox spacing="8.0">
+        <Button text="Guardar" onAction="#guardarCliente"/>
+        <Button text="Actualizar seleccionado" onAction="#actualizarCliente"/>
+        <Button text="Eliminar seleccionado" onAction="#eliminarCliente"/>
+        <Button text="Limpiar" onAction="#limpiarFormulario"/>
+    </HBox>
+    <HBox spacing="8.0">
+        <TextField fx:id="busquedaField" promptText="Buscar por ID, nombre, teléfono o correo" HBox.hgrow="ALWAYS"/>
+        <Button text="Buscar" onAction="#buscarClientes"/>
+        <Button text="Mostrar todos" onAction="#mostrarTodos"/>
+    </HBox>
+    <TableView fx:id="clientesTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="idColumn" text="ID" prefWidth="55.0"/>
+            <TableColumn fx:id="nombresColumn" text="Nombres" prefWidth="125.0"/>
+            <TableColumn fx:id="apellidosColumn" text="Apellidos" prefWidth="135.0"/>
+            <TableColumn fx:id="telefonoColumn" text="Teléfono" prefWidth="100.0"/>
+            <TableColumn fx:id="correoColumn" text="Correo" prefWidth="210.0"/>
+            <TableColumn fx:id="activoColumn" text="Activo" prefWidth="65.0"/>
+        </columns>
+    </TableView>
+</VBox>
