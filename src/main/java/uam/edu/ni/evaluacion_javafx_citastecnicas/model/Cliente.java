@@ -1,18 +1,24 @@
 package uam.edu.ni.evaluacion_javafx_citastecnicas.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Cliente {
-    private int id;
+
+    private Integer id;
     private String nombres;
     private String apellidos;
     private String telefono;
     private String correo;
     private boolean activo;
 
-    public Cliente() {
-    }
-
-    public Cliente(int id, String nombres, String apellidos, String telefono, String correo, boolean activo) {
-        this.id = id;
+    public Cliente(String nombres, String apellidos, String telefono, String correo, boolean activo) {
         this.nombres = nombres;
         this.apellidos = apellidos;
         this.telefono = telefono;
@@ -20,51 +26,14 @@ public class Cliente {
         this.activo = activo;
     }
 
-    public int getId() {
-        return id;
+    public String getNombreCompleto() {
+        String n = nombres != null ? nombres : "";
+        String a = apellidos != null ? apellidos : "";
+        return (n + " " + a).trim();
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getNombres() {
-        return nombres;
-    }
-
-    public void setNombres(String nombres) {
-        this.nombres = nombres;
-    }
-
-    public String getApellidos() {
-        return apellidos;
-    }
-
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
-
-    public String getCorreo() {
-        return correo;
-    }
-
-    public void setCorreo(String correo) {
-        this.correo = correo;
-    }
-
-    public boolean isActivo() {
-        return activo;
-    }
-
-    public void setActivo(boolean activo) {
-        this.activo = activo;
+    @Override
+    public String toString() {
+        return getNombreCompleto();
     }
 }

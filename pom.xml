@@ -64,7 +64,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                uam.edu.ni.evaluacion_javafx_citastecnicas/uam.edu.ni.evaluacion_javafx_citastecnicas.HelloApplication
+                                uam.edu.ni.evaluacion_javafx_citastecnicas/uam.edu.ni.evaluacion_javafx_citastecnicas.MenuPrincipalApplication
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>

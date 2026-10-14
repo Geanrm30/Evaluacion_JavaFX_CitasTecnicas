@@ -39,6 +39,11 @@ public final class ClienteValidator {
             errores.add("Debe indicarse si el cliente está activo.");
         }
 
+        if (telefono != null && !telefono.isBlank()
+                && !telefono.trim().matches("^[0-9+()\\- ]{7,20}$")) {
+            errores.add("El teléfono solo puede contener números, espacios, +, paréntesis o guiones (mínimo 7 caracteres).");
+        }
+
         return errores;
     }
 

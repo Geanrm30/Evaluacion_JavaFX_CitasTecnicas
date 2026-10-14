@@ -83,7 +83,8 @@ public class ClienteDAO implements CRUD<Cliente> {
         String sql = SELECT_CLIENTES
                 + "WHERE CAST(id AS TEXT) ILIKE ? OR nombres ILIKE ? OR apellidos ILIKE ? "
                 + "OR telefono ILIKE ? OR correo ILIKE ? ORDER BY id";
-        String patron = "%" + termino.trim() + "%";
+        String patron = "%" + termino.trim()
+                .replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
         try (Connection conexion = ConexionDB.getConexion();
              PreparedStatement sentencia = conexion.prepareStatement(sql)) {
             for (int i = 1; i <= 5; i++) {

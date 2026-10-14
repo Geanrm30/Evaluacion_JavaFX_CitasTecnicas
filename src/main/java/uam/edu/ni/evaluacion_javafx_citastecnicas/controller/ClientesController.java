@@ -1,5 +1,5 @@
 
-package uam.edu.ni.evaluacion_javafx_citastecnicas;
+package uam.edu.ni.evaluacion_javafx_citastecnicas.controller;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -194,7 +194,7 @@ public class ClientesController {
         String nombres = nombresField.getText().trim();
         String apellidos = apellidosField.getText().trim();
         String telefono = telefonoField.getText().trim();
-        String correo = correoField.getText().trim();
+        String correo = correoField.getText().trim().toLowerCase();
         boolean activo = activoCheckBox.isSelected();
 
         // Validación centralizada mediante nuestra clase
