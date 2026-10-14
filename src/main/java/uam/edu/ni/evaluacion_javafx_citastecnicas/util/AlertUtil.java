@@ -11,28 +11,12 @@ public final class AlertUtil {
     private AlertUtil() {
     }
 
-    public static void mostrarExito(String mensaje) {
-        mostrar(
-                Alert.AlertType.INFORMATION,
-                "Operación exitosa",
-                mensaje
-        );
-    }
-
-    public static void mostrarError(String titulo, String mensaje) {
-        mostrar(
-                Alert.AlertType.ERROR,
-                titulo,
-                mensaje
-        );
-    }
-
-    public static void mostrarAdvertencia(String mensaje) {
-        mostrar(
-                Alert.AlertType.WARNING,
-                "Advertencia",
-                mensaje
-        );
+    public static void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
+        Alert alerta = new Alert(tipo);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensaje);
+        alerta.showAndWait();
     }
 
     public static void mostrarValidaciones(List<String> errores) {
@@ -41,12 +25,7 @@ public final class AlertUtil {
         }
 
         String mensaje = "• " + String.join("\n• ", errores);
-
-        mostrar(
-                Alert.AlertType.WARNING,
-                "Datos inválidos",
-                mensaje
-        );
+        mostrarAlerta(Alert.AlertType.WARNING, "Datos inválidos", mensaje);
     }
 
     public static boolean confirmarEliminacion(String registro) {
@@ -76,15 +55,15 @@ public final class AlertUtil {
                 .isPresent();
     }
 
-    private static void mostrar(Alert.AlertType tipo,
-                                String titulo,
-                                String mensaje) {
-        Alert alerta = new Alert(tipo);
+    public static void mostrarExito(String mensaje) {
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Operación exitosa", mensaje);
+    }
 
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
+    public static void mostrarError(String titulo, String mensaje) {
+        mostrarAlerta(Alert.AlertType.ERROR, titulo, mensaje);
+    }
 
-        alerta.showAndWait();
+    public static void mostrarAdvertencia(String mensaje) {
+        mostrarAlerta(Alert.AlertType.WARNING, "Advertencia", mensaje);
     }
 }

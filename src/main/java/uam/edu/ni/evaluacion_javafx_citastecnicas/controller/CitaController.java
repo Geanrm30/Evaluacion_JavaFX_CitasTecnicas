@@ -118,7 +118,7 @@ public class CitaController {
         try {
             listaClientes.setAll(citaDao.listarClientesActivos());
         } catch (SQLException e) {
-            AlertUtil.mostrarError("Error al cargar clientes", SqlErrorMessages.traducir(e));
+            mostrarAlerta(Alert.AlertType.ERROR, "Error al cargar clientes", SqlErrorMessages.traducir(e));
         }
     }
 
@@ -127,7 +127,7 @@ public class CitaController {
             listaCitas.setAll(citaDao.listar());
             actualizarContador();
         } catch (SQLException e) {
-            AlertUtil.mostrarError("Error al cargar citas", SqlErrorMessages.traducir(e));
+            mostrarAlerta(Alert.AlertType.ERROR, "Error al cargar citas", SqlErrorMessages.traducir(e));
         }
     }
 
@@ -163,19 +163,19 @@ public class CitaController {
             }
 
             citaDao.guardar(nuevaCita);
-            AlertUtil.mostrarExito("La cita técnica ha sido registrada exitosamente.");
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Operación exitosa", "La cita técnica ha sido registrada exitosamente.");
             cargarCitas();
             limpiarFormulario();
 
         } catch (SQLException e) {
-            AlertUtil.mostrarError("Error al guardar cita", SqlErrorMessages.traducir(e));
+            mostrarAlerta(Alert.AlertType.ERROR, "Error al guardar cita", SqlErrorMessages.traducir(e));
         }
     }
 
     @FXML
     private void actualizarCita() {
         if (citaSeleccionada == null) {
-            AlertUtil.mostrarAdvertencia("Debe seleccionar una cita para actualizar.");
+            mostrarAlerta(Alert.AlertType.WARNING, "Advertencia", "Debe seleccionar una cita para actualizar.");
             return;
         }
 
@@ -193,12 +193,12 @@ public class CitaController {
             citaSeleccionada.setEstado(datosFormulario.getEstado());
 
             citaDao.actualizar(citaSeleccionada);
-            AlertUtil.mostrarExito("La cita técnica ha sido actualizada exitosamente.");
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Operación exitosa", "La cita técnica ha sido actualizada exitosamente.");
             cargarCitas();
             limpiarFormulario();
 
         } catch (SQLException e) {
-            AlertUtil.mostrarError("Error al actualizar cita", SqlErrorMessages.traducir(e));
+            mostrarAlerta(Alert.AlertType.ERROR, "Error al actualizar cita", SqlErrorMessages.traducir(e));
         }
     }
 
@@ -207,7 +207,7 @@ public class CitaController {
         CitaTecnica citaAEliminar = citaSeleccionada != null ? citaSeleccionada : tblCitas.getSelectionModel().getSelectedItem();
 
         if (citaAEliminar == null) {
-            AlertUtil.mostrarAdvertencia("Debe seleccionar una cita de la tabla para eliminar.");
+            mostrarAlerta(Alert.AlertType.WARNING, "Advertencia", "Debe seleccionar una cita de la tabla para eliminar.");
             return;
         }
 
@@ -220,12 +220,12 @@ public class CitaController {
 
         try {
             citaDao.eliminar(citaAEliminar.getId());
-            AlertUtil.mostrarExito("La cita ha sido eliminada exitosamente.");
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Operación exitosa", "La cita ha sido eliminada exitosamente.");
             cargarCitas();
             limpiarFormulario();
 
         } catch (SQLException e) {
-            AlertUtil.mostrarError("Error al eliminar cita", SqlErrorMessages.traducir(e));
+            mostrarAlerta(Alert.AlertType.ERROR, "Error al eliminar cita", SqlErrorMessages.traducir(e));
         }
     }
 
@@ -255,7 +255,7 @@ public class CitaController {
             listaCitas.setAll(citaDao.filtrar(estado, fecha));
             actualizarContador();
         } catch (SQLException e) {
-            AlertUtil.mostrarError("Error al aplicar filtros", SqlErrorMessages.traducir(e));
+            mostrarAlerta(Alert.AlertType.ERROR, "Error al aplicar filtros", SqlErrorMessages.traducir(e));
         }
     }
 
@@ -283,12 +283,12 @@ public class CitaController {
                 } else if (textoHora.length() == 8) {
                     hora = LocalTime.parse(textoHora);
                 } else {
-                    AlertUtil.mostrarAdvertencia("El formato de la hora debe ser HH:mm (ej. 09:30 o 14:00).");
+                    mostrarAlerta(Alert.AlertType.WARNING, "Formato inválido", "El formato de la hora debe ser HH:mm (ej. 09:30 o 14:00).");
                     txtHora.requestFocus();
                     return null;
                 }
             } catch (DateTimeParseException ex) {
-                AlertUtil.mostrarAdvertencia("Hora inválida. Ingrese una hora válida en formato HH:mm (ej. 09:30 o 14:00).");
+                mostrarAlerta(Alert.AlertType.WARNING, "Hora inválida", "Ingrese una hora válida en formato HH:mm (ej. 09:30 o 14:00).");
                 txtHora.requestFocus();
                 return null;
             }
@@ -300,11 +300,20 @@ public class CitaController {
 
         List<String> errores = CitaValidator.validar(clienteId, fecha, hora, tipoServicio, descripcion, estado);
         if (!errores.isEmpty()) {
-            AlertUtil.mostrarValidaciones(errores);
+            String mensaje = "• " + String.join("\n• ", errores);
+            mostrarAlerta(Alert.AlertType.WARNING, "Datos inválidos", mensaje);
             return null;
         }
 
         return new CitaTecnica(cliente, fecha, hora, tipoServicio, descripcion, estado);
+    }
+
+    public void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
+        Alert alerta = new Alert(tipo);
+        alerta.setHeaderText(null);
+        alerta.setTitle(titulo);
+        alerta.setContentText(mensaje);
+        alerta.showAndWait();
     }
 
     private void actualizarContador() {
