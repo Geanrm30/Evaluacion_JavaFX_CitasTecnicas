@@ -15,5 +15,7 @@ public class HelloApplication extends Application {
         stage.setTitle("Hello!");
         stage.setScene(scene);
         stage.show();
+        System.out.println(uam.edu.ni.evaluacion_javafx_citastecnicas.util.ConexionDB.probarConexion()
+                ? "Conexion exitosa" : "No se pudo conectar");
     }
 }
