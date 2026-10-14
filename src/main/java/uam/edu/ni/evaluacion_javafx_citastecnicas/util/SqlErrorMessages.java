@@ -9,49 +9,67 @@ public final class SqlErrorMessages {
     }
 
     public static String traducir(SQLException error) {
+
         if (error == null) {
             return "Ocurrió un error desconocido en la base de datos.";
         }
 
-        String estado = error.getSQLState();
+        // Recuperar el SQLState incluso si una excepción fue envuelta.
+        SQLException origen = error;
+
+        for (int i = 0; i < 10 && origen.getSQLState() == null; i++) {
+            if (origen.getCause() instanceof SQLException causa) {
+                origen = causa;
+            } else if (origen.getNextException() != null) {
+                origen = origen.getNextException();
+            } else {
+                break;
+            }
+        }
+
+        String estado = origen.getSQLState();
 
         if (estado == null) {
-            return "Ocurrió un error al acceder a la base de datos. "
-                    + "Verificá la conexión y los datos.";
+            String mensaje = error.getMessage();
+
+            return mensaje != null && !mensaje.isBlank()
+                    ? mensaje
+                    : "No se pudo completar la operación en la base de datos.";
         }
 
         return switch (estado) {
 
             case "23505" ->
-                    "Ya existe un registro con un valor único repetido, "
-                            + "por ejemplo, el correo del cliente.";
+                    "El correo electrónico ya está registrado. Usá uno diferente.";
 
-            case "23503" ->
-                    "No se puede completar la operación: el registro "
-                            + "tiene datos relacionados o el cliente seleccionado "
-                            + "no existe.";
+            case "23503" -> {
+                if (error.getMessage() != null
+                        && error.getMessage().contains("citas técnicas asociadas")) {
+                    yield error.getMessage();
+                }
+
+                yield "La operación incumple una relación entre clientes y citas. "
+                        + "Comprobá que el cliente exista y que no tenga citas "
+                        + "asociadas antes de eliminarlo.";
+            }
 
             case "23502" ->
                     "Falta completar un campo obligatorio.";
 
             case "23514" ->
-                    "Uno de los valores no cumple las reglas "
-                            + "de la base de datos.";
+                    "Uno de los datos no cumple las reglas permitidas.";
 
             case "22001" ->
-                    "Uno de los campos supera la cantidad máxima "
-                            + "de caracteres permitidos.";
+                    "Uno de los campos supera la longitud máxima permitida.";
 
             case "22P02" ->
-                    "Alguno de los datos ingresados tiene "
-                            + "un formato incorrecto.";
+                    "Alguno de los datos tiene un formato incorrecto.";
 
             case "08001", "08003", "08006" ->
-                    "No fue posible establecer o mantener "
-                            + "la conexión con PostgreSQL.";
+                    "No se pudo establecer o mantener la conexión con PostgreSQL.";
 
             case "28P01" ->
-                    "Usuario o contraseña de PostgreSQL incorrectos.";
+                    "El usuario o la contraseña de PostgreSQL son incorrectos.";
 
             case "3D000" ->
                     "La base de datos configurada no existe.";
