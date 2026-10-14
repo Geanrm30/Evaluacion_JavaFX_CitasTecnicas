@@ -1,3 +1,0 @@
-db.url=jdbc:postgresql://localhost:5432/gestion_citas
-db.user=postgres
-db.password=CAMBIAR_AQUI

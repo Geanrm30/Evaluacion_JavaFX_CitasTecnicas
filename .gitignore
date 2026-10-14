@@ -38,5 +38,5 @@ build/
 ### Mac OS ###
 .DS_Store
 
-#### Windows ###
+### Credenciales locales ###
 db.properties
