@@ -8,4 +8,5 @@ module uam.edu.ni.evaluacion_javafx_citastecnicas {
 
     opens uam.edu.ni.evaluacion_javafx_citastecnicas to javafx.fxml;
     exports uam.edu.ni.evaluacion_javafx_citastecnicas;
+    exports uam.edu.ni.evaluacion_javafx_citastecnicas.util;
 }
