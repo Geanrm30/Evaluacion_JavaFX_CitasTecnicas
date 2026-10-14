@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="uam.edu.ni.evaluacion_javafx_citastecnicas.controller.CitaController"
+      spacing="14.0" prefWidth="960.0" prefHeight="650.0">
+
+    <padding>
+        <Insets top="16.0" right="20.0" bottom="16.0" left="20.0"/>
+    </padding>
+
+    <!-- Título Principal -->
+    <HBox alignment="CENTER_LEFT" spacing="10.0">
+        <Label text="Gestión de Citas de Atención Técnica"
+               style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+    </HBox>
+
+    <Separator/>
+
+    <!-- Contenedor Principal: Formulario a la izquierda y Filtros + Tabla a la derecha -->
+    <SplitPane dividerPositions="0.38" VBox.vgrow="ALWAYS">
+
+        <!-- Formulario de Registro / Modificación -->
+        <VBox spacing="10.0">
+            <padding>
+                <Insets top="10.0" right="12.0" bottom="10.0" left="10.0"/>
+            </padding>
+
+            <Label text="Datos de la Cita" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+
+            <Label text="Cliente:*"/>
+            <ComboBox fx:id="cmbCliente" promptText="Seleccione un cliente" maxWidth="Infinity"/>
+
+            <GridPane hgap="8.0" vgap="6.0">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="50"/>
+                    <ColumnConstraints percentWidth="50"/>
+                </columnConstraints>
+
+                <Label text="Fecha:*" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <DatePicker fx:id="dpFecha" promptText="AAAA-MM-DD" maxWidth="Infinity"
+                            GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+
+                <Label text="Hora (HH:mm):*" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <TextField fx:id="txtHora" promptText="09:00"
+                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            </GridPane>
+
+            <Label text="Tipo de Servicio:*"/>
+            <TextField fx:id="txtTipoServicio" promptText="Ej. Mantenimiento, Reparación..."/>
+
+            <Label text="Estado:*"/>
+            <ComboBox fx:id="cmbEstado" promptText="Seleccione estado" maxWidth="Infinity"/>
+
+            <Label text="Descripción:*"/>
+            <TextArea fx:id="txtDescripcion" promptText="Detalle técnico de la solicitud..."
+                      prefRowCount="3" wrapText="true" VBox.vgrow="ALWAYS"/>
+
+            <!-- Botones de Acción -->
+            <HBox spacing="8.0" alignment="CENTER">
+                <Button fx:id="btnGuardar" text="Guardar" onAction="#guardarCita"
+                        style="-fx-background-color: #2e7d32; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="btnActualizar" text="Actualizar" onAction="#actualizarCita" disable="true"
+                        style="-fx-background-color: #0288d1; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="btnEliminar" text="Eliminar" onAction="#eliminarCita" disable="true"
+                        style="-fx-background-color: #d32f2f; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="btnLimpiar" text="Limpiar" onAction="#limpiarFormulario"/>
+            </HBox>
+        </VBox>
+
+        <!-- Sección de Filtros y Tabla -->
+        <VBox spacing="10.0">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="12.0"/>
+            </padding>
+
+            <!-- Barra de Filtros (RF06) -->
+            <TitledPane text="Filtros de Búsqueda" expanded="true" collapsible="false">
+                <HBox spacing="10.0" alignment="CENTER_LEFT">
+                    <Label text="Estado:"/>
+                    <ComboBox fx:id="cmbFiltroEstado" prefWidth="130.0"/>
+
+                    <Label text="Fecha:"/>
+                    <DatePicker fx:id="dpFiltroFecha" prefWidth="140.0" promptText="Filtrar fecha"/>
+
+                    <Button fx:id="btnFiltrar" text="Filtrar" onAction="#aplicarFiltros"/>
+                    <Button fx:id="btnLimpiarFiltros" text="Limpiar Filtros" onAction="#limpiarFiltros"/>
+                </HBox>
+            </TitledPane>
+
+            <!-- TableView de Citas (RF04) -->
+            <TableView fx:id="tblCitas" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colId" text="ID" prefWidth="50.0"/>
+                    <TableColumn fx:id="colCliente" text="Cliente" prefWidth="210.0"/>
+                    <TableColumn fx:id="colFecha" text="Fecha" prefWidth="95.0"/>
+                    <TableColumn fx:id="colHora" text="Hora" prefWidth="75.0"/>
+                    <TableColumn fx:id="colServicio" text="Servicio" prefWidth="130.0"/>
+                    <TableColumn fx:id="colEstado" text="Estado" prefWidth="100.0"/>
+                </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                </columnResizePolicy>
+            </TableView>
+
+            <!-- Barra de Estado Inferior -->
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <Label fx:id="lblTotalRegistros" text="Total de citas: 0"
+                       style="-fx-text-fill: #555; -fx-font-size: 11px;"/>
+            </HBox>
+        </VBox>
+
+    </SplitPane>
+
+</VBox>
