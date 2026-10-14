@@ -4,7 +4,6 @@ module uam.edu.ni.evaluacion_javafx_citastecnicas {
     requires java.sql;
     requires org.postgresql.jdbc;
     requires static lombok;
-    requires kotlin.stdlib;
 
 
     opens uam.edu.ni.evaluacion_javafx_citastecnicas to javafx.fxml;
