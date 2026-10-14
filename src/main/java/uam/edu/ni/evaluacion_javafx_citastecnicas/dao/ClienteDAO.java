@@ -28,6 +28,11 @@ public class ClienteDAO implements CRUD<Cliente> {
                 }
                 cliente.setId(resultado.getInt("id"));
             }
+        } catch (SQLException e) {
+            if ("23505".equals(e.getSQLState())) {
+                throw new SQLException("Ya existe un cliente registrado con ese correo electrónico.", e);
+            }
+            throw e;
         }
     }
 
@@ -47,6 +52,12 @@ public class ClienteDAO implements CRUD<Cliente> {
              PreparedStatement sentencia = conexion.prepareStatement(sql)) {
             sentencia.setInt(1, cliente.getId());
             verificarCambio(sentencia.executeUpdate(), cliente.getId(), "eliminar");
+        } catch (SQLException e) {
+            if ("23503".equals(e.getSQLState())) {
+                throw new SQLException(
+                        "No se puede eliminar este cliente porque tiene citas técnicas asociadas.", e);
+            }
+            throw e;
         }
     }
 
@@ -59,6 +70,11 @@ public class ClienteDAO implements CRUD<Cliente> {
             asignarDatos(sentencia, cliente);
             sentencia.setInt(6, cliente.getId());
             verificarCambio(sentencia.executeUpdate(), cliente.getId(), "actualizar");
+        } catch (SQLException e) {
+            if ("23505".equals(e.getSQLState())) {
+                throw new SQLException("Ya existe otro cliente registrado con ese correo electrónico.", e);
+            }
+            throw e;
         }
     }
 

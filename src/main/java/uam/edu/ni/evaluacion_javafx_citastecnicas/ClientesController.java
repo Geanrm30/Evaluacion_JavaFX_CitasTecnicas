@@ -5,6 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -92,6 +93,15 @@ public class ClientesController {
         Cliente seleccionado = clientesTable.getSelectionModel().getSelectedItem();
         if (seleccionado == null) {
             mostrarError("Selecciona un cliente de la tabla para eliminarlo.");
+            return;
+        }
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar eliminación");
+        confirmacion.setHeaderText("¿Eliminar al cliente seleccionado?");
+        confirmacion.setContentText(seleccionado.getNombres() + " " + seleccionado.getApellidos()
+                + "\nEsta acción no se puede deshacer.");
+        confirmacion.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+        if (confirmacion.showAndWait().orElse(ButtonType.NO) != ButtonType.YES) {
             return;
         }
         ejecutarOperacion(() -> clienteDAO.eliminar(seleccionado), "Cliente eliminado.");
