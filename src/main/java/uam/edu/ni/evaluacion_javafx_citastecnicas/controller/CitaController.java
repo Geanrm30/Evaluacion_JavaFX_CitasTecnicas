@@ -119,7 +119,18 @@ public class CitaController {
 
     public void recargarClientes() {
         try {
-            listaClientes.setAll(citaDao.listarClientesActivos());
+            Integer clienteId = (citaSeleccionada != null && citaSeleccionada.getCliente() != null)
+                    ? citaSeleccionada.getCliente().getId()
+                    : null;
+            listaClientes.setAll(citaDao.listarClientesActivos(clienteId));
+            if (clienteId != null) {
+                for (Cliente cl : listaClientes) {
+                    if (cl.getId() != null && cl.getId().equals(clienteId)) {
+                        cmbCliente.setValue(cl);
+                        break;
+                    }
+                }
+            }
         } catch (SQLException e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error al cargar clientes", SqlErrorMessages.traducir(e));
         }
@@ -136,15 +147,7 @@ public class CitaController {
 
     private void cargarCitaEnFormulario(CitaTecnica cita) {
         this.citaSeleccionada = cita;
-
-        if (cita.getCliente() != null) {
-            for (Cliente cl : listaClientes) {
-                if (cl.getId().equals(cita.getCliente().getId())) {
-                    cmbCliente.setValue(cl);
-                    break;
-                }
-            }
-        }
+        recargarClientes();
 
         dpFecha.setValue(cita.getFecha());
         txtHora.setText(cita.getHora() != null ? cita.getHora().toString() : "");
@@ -236,6 +239,7 @@ public class CitaController {
     private void limpiarFormulario() {
         citaSeleccionada = null;
         cmbCliente.setValue(null);
+        recargarClientes();
         dpFecha.setValue(null);
         txtHora.clear();
         txtTipoServicio.clear();
@@ -272,6 +276,13 @@ public class CitaController {
     private CitaTecnica obtenerCitaDesdeFormulario() {
         Cliente cliente = cmbCliente.getValue();
         Integer clienteId = cliente != null ? cliente.getId() : null;
+
+        if (citaSeleccionada == null && cliente != null && !cliente.isActivo()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Cliente inactivo", "No se pueden crear nuevas citas para un cliente inactivo.");
+            cmbCliente.requestFocus();
+            return null;
+        }
+
         LocalDate fecha = dpFecha.getValue();
 
         if (fecha != null && fecha.isBefore(LocalDate.now())) {

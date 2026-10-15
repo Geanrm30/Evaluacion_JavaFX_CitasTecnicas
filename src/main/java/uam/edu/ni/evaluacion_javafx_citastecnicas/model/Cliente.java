@@ -34,6 +34,6 @@ public class Cliente {
 
     @Override
     public String toString() {
-        return getNombreCompleto();
+        return activo ? getNombreCompleto() : getNombreCompleto() + " (Inactivo)";
     }
 }

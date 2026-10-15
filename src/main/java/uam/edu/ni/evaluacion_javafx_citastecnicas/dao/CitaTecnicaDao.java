@@ -176,24 +176,34 @@ public class CitaTecnicaDao implements CRUD<CitaTecnica> {
     }
 
     public List<Cliente> listarClientesActivos() throws SQLException {
+        return listarClientesActivos(null);
+    }
+
+    public List<Cliente> listarClientesActivos(Integer incluirClienteId) throws SQLException {
         List<Cliente> clientes = new ArrayList<>();
-        String sql = "SELECT id, nombres, apellidos, telefono, correo, activo "
-                   + "FROM cliente WHERE activo = TRUE ORDER BY nombres, apellidos";
+        String sql = (incluirClienteId != null && incluirClienteId > 0)
+                ? "SELECT id, nombres, apellidos, telefono, correo, activo FROM cliente WHERE activo = TRUE OR id = ? ORDER BY nombres, apellidos"
+                : "SELECT id, nombres, apellidos, telefono, correo, activo FROM cliente WHERE activo = TRUE ORDER BY nombres, apellidos";
 
         try (Connection con = ConexionDB.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-            while (rs.next()) {
-                Cliente cliente = new Cliente(
-                        rs.getInt("id"),
-                        rs.getString("nombres"),
-                        rs.getString("apellidos"),
-                        rs.getString("telefono"),
-                        rs.getString("correo"),
-                        rs.getBoolean("activo")
-                );
-                clientes.add(cliente);
+            if (incluirClienteId != null && incluirClienteId > 0) {
+                ps.setInt(1, incluirClienteId);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Cliente cliente = new Cliente(
+                            rs.getInt("id"),
+                            rs.getString("nombres"),
+                            rs.getString("apellidos"),
+                            rs.getString("telefono"),
+                            rs.getString("correo"),
+                            rs.getBoolean("activo")
+                    );
+                    clientes.add(cliente);
+                }
             }
         }
         return clientes;
