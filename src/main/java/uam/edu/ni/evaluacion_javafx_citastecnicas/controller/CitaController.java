@@ -75,15 +75,6 @@ public class CitaController {
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
 
         tblCitas.setItems(listaCitas);
-        tblCitas.setRowFactory(tv -> {
-            TableRow<CitaTecnica> fila = new TableRow<>();
-            fila.setOnMouseClicked(e -> {
-                if (e.getClickCount() == 2 && !fila.isEmpty()) {
-                    cargarCitaEnFormulario(fila.getItem());
-                }
-            });
-            return fila;
-        });
     }
 
     private void configurarCombos() {
@@ -109,26 +100,46 @@ public class CitaController {
     }
 
     private void configurarContextMenu() {
-        ContextMenu contextMenu = new ContextMenu();
+        tblCitas.setRowFactory(tabla -> {
+            TableRow<CitaTecnica> fila = new TableRow<>();
+            MenuItem itemEditar = new MenuItem("Cargar en formulario para editar");
+            itemEditar.setOnAction(e -> {
+                CitaTecnica cita = fila.getItem();
+                if (cita != null) {
+                    tblCitas.getSelectionModel().select(cita);
+                    cargarCitaEnFormulario(cita);
+                }
+            });
 
-        MenuItem itemEditar = new MenuItem("Cargar en formulario para editar");
-        itemEditar.setOnAction(e -> {
-            CitaTecnica seleccion = tblCitas.getSelectionModel().getSelectedItem();
-            if (seleccion != null) {
-                cargarCitaEnFormulario(seleccion);
-            }
+            MenuItem itemEliminar = new MenuItem("Eliminar cita");
+            itemEliminar.setOnAction(e -> eliminarCita(fila.getItem()));
+
+            ContextMenu contextMenu = new ContextMenu(itemEditar, itemEliminar);
+            fila.setOnMouseClicked(e -> {
+                if (e.getClickCount() == 2 && !fila.isEmpty()) {
+                    cargarCitaEnFormulario(fila.getItem());
+                }
+            });
+            fila.itemProperty().addListener((obs, anterior, cita) ->
+                    fila.setContextMenu(cita == null ? null : contextMenu));
+            return fila;
         });
-
-        MenuItem itemEliminar = new MenuItem("Eliminar cita");
-        itemEliminar.setOnAction(e -> eliminarCita());
-
-        contextMenu.getItems().addAll(itemEditar, itemEliminar);
-        tblCitas.setContextMenu(contextMenu);
     }
 
     public void recargarClientes() {
         try {
-            listaClientes.setAll(citaDao.listarClientesActivos());
+            Integer clienteId = (citaSeleccionada != null && citaSeleccionada.getCliente() != null)
+                    ? citaSeleccionada.getCliente().getId()
+                    : null;
+            listaClientes.setAll(citaDao.listarClientesActivos(clienteId));
+            if (clienteId != null) {
+                for (Cliente cl : listaClientes) {
+                    if (cl.getId() != null && cl.getId().equals(clienteId)) {
+                        cmbCliente.setValue(cl);
+                        break;
+                    }
+                }
+            }
         } catch (SQLException e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error al cargar clientes", SqlErrorMessages.traducir(e));
         }
@@ -136,7 +147,7 @@ public class CitaController {
 
     private void cargarCitas() {
         try {
-            listaCitas.setAll(citaDao.listar());
+            listaCitas.setAll(citaDao.filtrar(cmbFiltroEstado.getValue(), dpFiltroFecha.getValue()));
             actualizarContador();
         } catch (SQLException e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error al cargar citas", SqlErrorMessages.traducir(e));
@@ -145,17 +156,7 @@ public class CitaController {
 
     private void cargarCitaEnFormulario(CitaTecnica cita) {
         this.citaSeleccionada = cita;
-
-        if (cita.getCliente() != null) {
-            Cliente encontrado = listaClientes.stream()
-                    .filter(cl -> cl.getId().equals(cita.getCliente().getId()))
-                    .findFirst().orElse(null);
-            if (encontrado == null) {
-                encontrado = cita.getCliente();
-                listaClientes.add(encontrado);
-            }
-            cmbCliente.setValue(encontrado);
-        }
+        recargarClientes();
 
         dpFecha.setValue(cita.getFecha());
         txtHora.setText(cita.getHora() != null ? cita.getHora().toString() : "");
@@ -199,14 +200,8 @@ public class CitaController {
                 return;
             }
 
-            citaSeleccionada.setCliente(datosFormulario.getCliente());
-            citaSeleccionada.setFecha(datosFormulario.getFecha());
-            citaSeleccionada.setHora(datosFormulario.getHora());
-            citaSeleccionada.setTipoServicio(datosFormulario.getTipoServicio());
-            citaSeleccionada.setDescripcion(datosFormulario.getDescripcion());
-            citaSeleccionada.setEstado(datosFormulario.getEstado());
-
-            citaDao.actualizar(citaSeleccionada);
+            datosFormulario.setId(citaSeleccionada.getId());
+            citaDao.actualizar(datosFormulario);
             mostrarAlerta(Alert.AlertType.INFORMATION, "Operación exitosa", "La cita técnica ha sido actualizada exitosamente.");
             cargarCitas();
             limpiarFormulario();
@@ -218,8 +213,14 @@ public class CitaController {
 
     @FXML
     private void eliminarCita() {
-        CitaTecnica citaAEliminar = citaSeleccionada != null ? citaSeleccionada : tblCitas.getSelectionModel().getSelectedItem();
+        CitaTecnica citaAEliminar = tblCitas.getSelectionModel().getSelectedItem();
+        if (citaAEliminar == null) {
+            citaAEliminar = citaSeleccionada;
+        }
+        eliminarCita(citaAEliminar);
+    }
 
+    private void eliminarCita(CitaTecnica citaAEliminar) {
         if (citaAEliminar == null) {
             mostrarAlerta(Alert.AlertType.WARNING, "Advertencia", "Debe seleccionar una cita de la tabla para eliminar.");
             return;
@@ -247,6 +248,7 @@ public class CitaController {
     private void limpiarFormulario() {
         citaSeleccionada = null;
         cmbCliente.setValue(null);
+        recargarClientes();
         dpFecha.setValue(null);
         txtHora.clear();
         txtTipoServicio.clear();
@@ -262,15 +264,7 @@ public class CitaController {
 
     @FXML
     private void aplicarFiltros() {
-        String estado = cmbFiltroEstado.getValue();
-        LocalDate fecha = dpFiltroFecha.getValue();
-
-        try {
-            listaCitas.setAll(citaDao.filtrar(estado, fecha));
-            actualizarContador();
-        } catch (SQLException e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error al aplicar filtros", SqlErrorMessages.traducir(e));
-        }
+        cargarCitas();
     }
 
     @FXML
@@ -283,6 +277,13 @@ public class CitaController {
     private CitaTecnica obtenerCitaDesdeFormulario() {
         Cliente cliente = cmbCliente.getValue();
         Integer clienteId = cliente != null ? cliente.getId() : null;
+
+        if (citaSeleccionada == null && cliente != null && !cliente.isActivo()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Cliente inactivo", "No se pueden crear nuevas citas para un cliente inactivo.");
+            cmbCliente.requestFocus();
+            return null;
+        }
+
         LocalDate fecha = dpFecha.getValue();
 
         if (fecha != null && fecha.isBefore(LocalDate.now())) {
