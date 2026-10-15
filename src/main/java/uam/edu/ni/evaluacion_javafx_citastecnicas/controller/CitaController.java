@@ -58,11 +58,12 @@ public class CitaController {
     public void initialize() {
         configurarTabla();
         configurarCombos();
+        configurarDatePicker();
         configurarContextMenu();
-        configurarListenerSeleccion();
 
         recargarClientes();
         cargarCitas();
+        limpiarFormulario();
     }
 
     private void configurarTabla() {
@@ -88,10 +89,12 @@ public class CitaController {
         cmbCliente.setItems(listaClientes);
     }
 
-    private void configurarListenerSeleccion() {
-        tblCitas.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                cargarCitaEnFormulario(newVal);
+    private void configurarDatePicker() {
+        dpFecha.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || date.isBefore(LocalDate.now()));
             }
         });
     }
@@ -270,6 +273,14 @@ public class CitaController {
         Cliente cliente = cmbCliente.getValue();
         Integer clienteId = cliente != null ? cliente.getId() : null;
         LocalDate fecha = dpFecha.getValue();
+
+        if (fecha != null && fecha.isBefore(LocalDate.now())) {
+            if (citaSeleccionada == null || !fecha.equals(citaSeleccionada.getFecha())) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Fecha inválida", "No se pueden programar citas con fechas anteriores a la de hoy.");
+                dpFecha.requestFocus();
+                return null;
+            }
+        }
 
         LocalTime hora = null;
         String textoHora = txtHora.getText() != null ? txtHora.getText().trim() : "";

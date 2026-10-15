@@ -90,7 +90,7 @@ public class CitaTecnicaDao implements CRUD<CitaTecnica> {
         String sql = "SELECT ct.id, ct.cliente_id, ct.fecha, ct.hora, ct.tipo_servicio, ct.descripcion, ct.estado, "
                    + "       c.nombres, c.apellidos, c.telefono, c.correo, c.activo "
                    + "FROM cita_tecnica ct "
-                   + "LEFT JOIN cliente c ON ct.cliente_id = c.id "
+                   + "INNER JOIN cliente c ON ct.cliente_id = c.id "
                    + "ORDER BY ct.fecha DESC, ct.hora DESC";
 
         try (Connection con = ConexionDB.getConexion();
@@ -110,7 +110,7 @@ public class CitaTecnicaDao implements CRUD<CitaTecnica> {
         String sql = "SELECT ct.id, ct.cliente_id, ct.fecha, ct.hora, ct.tipo_servicio, ct.descripcion, ct.estado, "
                    + "       c.nombres, c.apellidos, c.telefono, c.correo, c.activo "
                    + "FROM cita_tecnica ct "
-                   + "LEFT JOIN cliente c ON ct.cliente_id = c.id "
+                   + "INNER JOIN cliente c ON ct.cliente_id = c.id "
                    + "WHERE CAST(ct.id AS TEXT) ILIKE ? OR c.nombres ILIKE ? OR c.apellidos ILIKE ? "
                    + "   OR ct.tipo_servicio ILIKE ? OR ct.estado ILIKE ? OR ct.descripcion ILIKE ? "
                    + "ORDER BY ct.fecha DESC, ct.hora DESC";
@@ -140,7 +140,7 @@ public class CitaTecnicaDao implements CRUD<CitaTecnica> {
                 "SELECT ct.id, ct.cliente_id, ct.fecha, ct.hora, ct.tipo_servicio, ct.descripcion, ct.estado, "
               + "       c.nombres, c.apellidos, c.telefono, c.correo, c.activo "
               + "FROM cita_tecnica ct "
-              + "LEFT JOIN cliente c ON ct.cliente_id = c.id "
+              + "INNER JOIN cliente c ON ct.cliente_id = c.id "
               + "WHERE 1=1 "
         );
 
