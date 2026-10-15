@@ -40,7 +40,7 @@ public final class SqlErrorMessages {
             case "23505" ->
                     "El correo electrónico ya está registrado. Usá uno diferente.";
 
-            case "23503" -> {
+            case "23503", "23001" -> {
                 if (error.getMessage() != null
                         && error.getMessage().contains("citas técnicas asociadas")) {
                     yield error.getMessage();

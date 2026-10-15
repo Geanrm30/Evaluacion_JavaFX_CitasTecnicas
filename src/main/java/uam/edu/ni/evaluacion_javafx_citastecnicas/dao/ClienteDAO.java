@@ -47,13 +47,24 @@ public class ClienteDAO implements CRUD<Cliente> {
 
     @Override
     public void eliminar(Cliente cliente) throws SQLException {
+        String sqlCitas = "SELECT COUNT(*) FROM cita_tecnica WHERE cliente_id = ?";
         String sql = "DELETE FROM cliente WHERE id = ?";
-        try (Connection conexion = ConexionDB.getConexion();
-             PreparedStatement sentencia = conexion.prepareStatement(sql)) {
-            sentencia.setInt(1, cliente.getId());
-            verificarCambio(sentencia.executeUpdate(), cliente.getId(), "eliminar");
+        try (Connection conexion = ConexionDB.getConexion()) {
+            try (PreparedStatement consulta = conexion.prepareStatement(sqlCitas)) {
+                consulta.setInt(1, cliente.getId());
+                try (ResultSet resultado = consulta.executeQuery()) {
+                    if (resultado.next() && resultado.getInt(1) > 0) {
+                        throw new SQLException(
+                                "No se puede eliminar este cliente porque tiene citas técnicas asociadas.", "23503");
+                    }
+                }
+            }
+            try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+                sentencia.setInt(1, cliente.getId());
+                verificarCambio(sentencia.executeUpdate(), cliente.getId(), "eliminar");
+            }
         } catch (SQLException e) {
-            if ("23503".equals(e.getSQLState())) {
+            if ("23503".equals(e.getSQLState()) || "23001".equals(e.getSQLState())) {
                 throw new SQLException(
                         "No se puede eliminar este cliente porque tiene citas técnicas asociadas.", e);
             }
