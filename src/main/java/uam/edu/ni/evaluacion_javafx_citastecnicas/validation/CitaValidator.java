@@ -35,7 +35,7 @@ public final class CitaValidator {
         }
 
         validarTexto(errores, tipoServicio, "El tipo de servicio", 80);
-        validarTexto(errores, descripcion, "La descripción", 255);
+        validarTexto(errores, descripcion, "El campo descripción", 255);
 
         if (estado == null || !ESTADOS_VALIDOS.contains(estado)) {
             errores.add(
