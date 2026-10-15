@@ -75,6 +75,15 @@ public class CitaController {
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
 
         tblCitas.setItems(listaCitas);
+        tblCitas.setRowFactory(tv -> {
+            TableRow<CitaTecnica> fila = new TableRow<>();
+            fila.setOnMouseClicked(e -> {
+                if (e.getClickCount() == 2 && !fila.isEmpty()) {
+                    cargarCitaEnFormulario(fila.getItem());
+                }
+            });
+            return fila;
+        });
     }
 
     private void configurarCombos() {
@@ -138,12 +147,14 @@ public class CitaController {
         this.citaSeleccionada = cita;
 
         if (cita.getCliente() != null) {
-            for (Cliente cl : listaClientes) {
-                if (cl.getId().equals(cita.getCliente().getId())) {
-                    cmbCliente.setValue(cl);
-                    break;
-                }
+            Cliente encontrado = listaClientes.stream()
+                    .filter(cl -> cl.getId().equals(cita.getCliente().getId()))
+                    .findFirst().orElse(null);
+            if (encontrado == null) {
+                encontrado = cita.getCliente();
+                listaClientes.add(encontrado);
             }
+            cmbCliente.setValue(encontrado);
         }
 
         dpFecha.setValue(cita.getFecha());
