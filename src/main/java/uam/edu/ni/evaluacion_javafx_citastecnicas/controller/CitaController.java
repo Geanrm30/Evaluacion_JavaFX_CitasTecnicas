@@ -100,21 +100,25 @@ public class CitaController {
     }
 
     private void configurarContextMenu() {
-        ContextMenu contextMenu = new ContextMenu();
+        tblCitas.setRowFactory(tabla -> {
+            TableRow<CitaTecnica> fila = new TableRow<>();
+            MenuItem itemEditar = new MenuItem("Cargar en formulario para editar");
+            itemEditar.setOnAction(e -> {
+                CitaTecnica cita = fila.getItem();
+                if (cita != null) {
+                    tblCitas.getSelectionModel().select(cita);
+                    cargarCitaEnFormulario(cita);
+                }
+            });
 
-        MenuItem itemEditar = new MenuItem("Cargar en formulario para editar");
-        itemEditar.setOnAction(e -> {
-            CitaTecnica seleccion = tblCitas.getSelectionModel().getSelectedItem();
-            if (seleccion != null) {
-                cargarCitaEnFormulario(seleccion);
-            }
+            MenuItem itemEliminar = new MenuItem("Eliminar cita");
+            itemEliminar.setOnAction(e -> eliminarCita(fila.getItem()));
+
+            ContextMenu contextMenu = new ContextMenu(itemEditar, itemEliminar);
+            fila.itemProperty().addListener((obs, anterior, cita) ->
+                    fila.setContextMenu(cita == null ? null : contextMenu));
+            return fila;
         });
-
-        MenuItem itemEliminar = new MenuItem("Eliminar cita");
-        itemEliminar.setOnAction(e -> eliminarCita());
-
-        contextMenu.getItems().addAll(itemEditar, itemEliminar);
-        tblCitas.setContextMenu(contextMenu);
     }
 
     public void recargarClientes() {
@@ -138,7 +142,7 @@ public class CitaController {
 
     private void cargarCitas() {
         try {
-            listaCitas.setAll(citaDao.listar());
+            listaCitas.setAll(citaDao.filtrar(cmbFiltroEstado.getValue(), dpFiltroFecha.getValue()));
             actualizarContador();
         } catch (SQLException e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Error al cargar citas", SqlErrorMessages.traducir(e));
@@ -191,14 +195,8 @@ public class CitaController {
                 return;
             }
 
-            citaSeleccionada.setCliente(datosFormulario.getCliente());
-            citaSeleccionada.setFecha(datosFormulario.getFecha());
-            citaSeleccionada.setHora(datosFormulario.getHora());
-            citaSeleccionada.setTipoServicio(datosFormulario.getTipoServicio());
-            citaSeleccionada.setDescripcion(datosFormulario.getDescripcion());
-            citaSeleccionada.setEstado(datosFormulario.getEstado());
-
-            citaDao.actualizar(citaSeleccionada);
+            datosFormulario.setId(citaSeleccionada.getId());
+            citaDao.actualizar(datosFormulario);
             mostrarAlerta(Alert.AlertType.INFORMATION, "Operación exitosa", "La cita técnica ha sido actualizada exitosamente.");
             cargarCitas();
             limpiarFormulario();
@@ -210,8 +208,14 @@ public class CitaController {
 
     @FXML
     private void eliminarCita() {
-        CitaTecnica citaAEliminar = citaSeleccionada != null ? citaSeleccionada : tblCitas.getSelectionModel().getSelectedItem();
+        CitaTecnica citaAEliminar = tblCitas.getSelectionModel().getSelectedItem();
+        if (citaAEliminar == null) {
+            citaAEliminar = citaSeleccionada;
+        }
+        eliminarCita(citaAEliminar);
+    }
 
+    private void eliminarCita(CitaTecnica citaAEliminar) {
         if (citaAEliminar == null) {
             mostrarAlerta(Alert.AlertType.WARNING, "Advertencia", "Debe seleccionar una cita de la tabla para eliminar.");
             return;
@@ -255,15 +259,7 @@ public class CitaController {
 
     @FXML
     private void aplicarFiltros() {
-        String estado = cmbFiltroEstado.getValue();
-        LocalDate fecha = dpFiltroFecha.getValue();
-
-        try {
-            listaCitas.setAll(citaDao.filtrar(estado, fecha));
-            actualizarContador();
-        } catch (SQLException e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error al aplicar filtros", SqlErrorMessages.traducir(e));
-        }
+        cargarCitas();
     }
 
     @FXML
